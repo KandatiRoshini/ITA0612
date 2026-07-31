@@ -1,0 +1,138 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMOaNroEx0fKxf0h2VqAmTp",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/KandatiRoshini/ITA0612/blob/main/AT'S/CO3-AT1/Q2\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mYk4QUHj9pnC",
+        "outputId": "aa13b936-8183-4e48-e879-f9123627899a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "============================================================\n",
+            "Small Sample\n",
+            "\n",
+            "Maximum Likelihood Estimation\n",
+            "Mean     : 5.035\n",
+            "Variance : 0.1733\n",
+            "\n",
+            "Bayesian Estimation\n",
+            "Posterior Mean     : 5.0333\n",
+            "Posterior Variance : 0.0476\n",
+            "============================================================\n",
+            "Large Sample\n",
+            "\n",
+            "Maximum Likelihood Estimation\n",
+            "Mean     : 5.8433\n",
+            "Variance : 0.6811\n",
+            "\n",
+            "Bayesian Estimation\n",
+            "Posterior Mean     : 5.8377\n",
+            "Posterior Variance : 0.0066\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Maximum Likelihood Estimation (MLE) vs Bayesian Estimation\n",
+        "# Dataset: Iris Dataset\n",
+        "\n",
+        "import numpy as np\n",
+        "from sklearn.datasets import load_iris\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Load Dataset\n",
+        "# -----------------------------\n",
+        "iris = load_iris()\n",
+        "\n",
+        "# Use sepal length as sample data\n",
+        "data = iris.data[:, 0]\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Small and Large Samples\n",
+        "# -----------------------------\n",
+        "small_sample = data[:20]\n",
+        "large_sample = data\n",
+        "\n",
+        "# -----------------------------\n",
+        "# MLE Estimation\n",
+        "# -----------------------------\n",
+        "def mle_estimate(sample):\n",
+        "    mean = np.mean(sample)\n",
+        "    variance = np.var(sample)   # MLE variance\n",
+        "    return mean, variance\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Bayesian Estimation\n",
+        "# Prior: Normal(mean=5, variance=1)\n",
+        "# Known observation variance = 1\n",
+        "# -----------------------------\n",
+        "def bayesian_mean(sample, prior_mean=5.0, prior_variance=1.0, obs_variance=1.0):\n",
+        "\n",
+        "    n = len(sample)\n",
+        "    sample_mean = np.mean(sample)\n",
+        "\n",
+        "    posterior_variance = 1 / ((1/prior_variance) + (n/obs_variance))\n",
+        "\n",
+        "    posterior_mean = posterior_variance * (\n",
+        "        (prior_mean/prior_variance) +\n",
+        "        (n*sample_mean/obs_variance)\n",
+        "    )\n",
+        "\n",
+        "    return posterior_mean, posterior_variance\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Compare Results\n",
+        "# -----------------------------\n",
+        "for name, sample in [(\"Small Sample\", small_sample),\n",
+        "                     (\"Large Sample\", large_sample)]:\n",
+        "\n",
+        "    print(\"=\"*60)\n",
+        "    print(name)\n",
+        "\n",
+        "    mle_mean, mle_var = mle_estimate(sample)\n",
+        "\n",
+        "    bayes_mean, bayes_var = bayesian_mean(sample)\n",
+        "\n",
+        "    print(\"\\nMaximum Likelihood Estimation\")\n",
+        "    print(\"Mean     :\", round(mle_mean,4))\n",
+        "    print(\"Variance :\", round(mle_var,4))\n",
+        "\n",
+        "    print(\"\\nBayesian Estimation\")\n",
+        "    print(\"Posterior Mean     :\", round(bayes_mean,4))\n",
+        "    print(\"Posterior Variance :\", round(bayes_var,4))\n"
+      ]
+    }
+  ]
+}
