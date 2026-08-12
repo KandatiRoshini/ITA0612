@@ -1,0 +1,167 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNqPp42ENRwlgCTexe1Dfr6",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/KandatiRoshini/ITA0612/blob/main/lab/eperiments/exp-2\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 211
+        },
+        "id": "pVKbsgF0Pjif",
+        "outputId": "b16488d6-ab20-41f4-84fb-36208ec82781"
+      },
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "FileNotFoundError",
+          "evalue": "[Errno 2] No such file or directory: 'trainingdata.csv'",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mFileNotFoundError\u001b[0m                         Traceback (most recent call last)",
+            "\u001b[0;32m/tmp/ipykernel_1545/143709510.py\u001b[0m in \u001b[0;36m<cell line: 0>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0;31m# Read training data from CSV file\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 4\u001b[0;31m \u001b[0;32mwith\u001b[0m \u001b[0mopen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"trainingdata.csv\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m\"r\"\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mfile\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      5\u001b[0m     \u001b[0mdata\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mlist\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcsv\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mreader\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfile\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      6\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mFileNotFoundError\u001b[0m: [Errno 2] No such file or directory: 'trainingdata.csv'"
+          ]
+        }
+      ],
+      "source": [
+        "import csv\n",
+        "\n",
+        "# Read training data from CSV file\n",
+        "with open(\"trainingdata.csv\", \"r\") as file:\n",
+        "    data = list(csv.reader(file))\n",
+        "\n",
+        "# Remove header\n",
+        "header = data[0]\n",
+        "training_data = data[1:]\n",
+        "\n",
+        "# Separate attributes and target\n",
+        "X = [row[:-1] for row in training_data]\n",
+        "Y = [row[-1] for row in training_data]\n",
+        "\n",
+        "num_attributes = len(X[0])\n",
+        "\n",
+        "# Initialize Specific and General boundaries\n",
+        "S = ['0'] * num_attributes\n",
+        "G = [['?'] * num_attributes]\n",
+        "\n",
+        "# Check whether hypothesis covers an example\n",
+        "def covers(h, example):\n",
+        "    for i in range(num_attributes):\n",
+        "        if h[i] != '?' and h[i] != example[i]:\n",
+        "            return False\n",
+        "    return True\n",
+        "\n",
+        "# Candidate-Elimination Algorithm\n",
+        "for example, target in zip(X, Y):\n",
+        "\n",
+        "    # Positive example\n",
+        "    if target == \"Yes\":\n",
+        "\n",
+        "        # Remove general hypotheses that do not cover positive example\n",
+        "        G = [g for g in G if covers(g, example)]\n",
+        "\n",
+        "        # Update Specific boundary\n",
+        "        for i in range(num_attributes):\n",
+        "            if S[i] == '0':\n",
+        "                S[i] = example[i]\n",
+        "            elif S[i] != example[i]:\n",
+        "                S[i] = '?'\n",
+        "\n",
+        "    # Negative example\n",
+        "    else:\n",
+        "\n",
+        "        new_G = []\n",
+        "\n",
+        "        for g in G:\n",
+        "            if covers(g, example):\n",
+        "\n",
+        "                # Generate minimal specializations\n",
+        "                for i in range(num_attributes):\n",
+        "                    if g[i] == '?':\n",
+        "                        if S[i] != '?' and S[i] != '0':\n",
+        "                            new_h = g.copy()\n",
+        "                            new_h[i] = S[i]\n",
+        "\n",
+        "                            # Keep only hypotheses that do not cover negative example\n",
+        "                            if not covers(new_h, example):\n",
+        "                                new_G.append(new_h)\n",
+        "            else:\n",
+        "                new_G.append(g)\n",
+        "\n",
+        "        G = new_G\n",
+        "\n",
+        "# Remove duplicate hypotheses\n",
+        "G = [list(x) for x in set(tuple(g) for g in G)]\n",
+        "\n",
+        "# Display results\n",
+        "print(\"Training Data:\")\n",
+        "for row in training_data:\n",
+        "    print(row)\n",
+        "\n",
+        "print(\"\\nSpecific Boundary (S):\")\n",
+        "print(S)\n",
+        "\n",
+        "print(\"\\nGeneral Boundary (G):\")\n",
+        "for g in G:\n",
+        "    print(g)\n",
+        "\n",
+        "print(\"\\nAll Hypotheses Consistent with Training Data:\")\n",
+        "print(\"S =\", S)\n",
+        "print(\"G =\", G)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "397af70c"
+      },
+      "source": [
+        "import csv\n",
+        "\n",
+        "# Create a dummy trainingdata.csv file for demonstration\n",
+        "sample_data = [\n",
+        "    ['Sky', 'AirTemp', 'Humidity', 'Wind', 'Water', 'Forecast', 'EnjoySport'],\n",
+        "    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],\n",
+        "    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],\n",
+        "    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],\n",
+        "    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']\n",
+        "]\n",
+        "\n",
+        "with open('trainingdata.csv', 'w', newline='') as file:\n",
+        "    writer = csv.writer(file)\n",
+        "    writer.writerows(sample_data)\n",
+        "\n",
+        "print('Dummy trainingdata.csv created successfully.')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
